@@ -1,0 +1,12 @@
+name: Slimy
+description: Slimy
+author: FearMig
+website: www.github.com/fearmig
+version: 1.0
+main: org.mig.slimy.Slimy
+
+depend: [FeatherBoard,Multiverse-Core]
+
+commands:
+  slime:
+    description: test
