@@ -10,6 +10,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemMergeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
@@ -22,10 +26,10 @@ import org.mig.slimy.modules.GameModule;
 
 public class PlayerListeners implements Listener {
 	private static int yLevel;
-	private int maxX = 50;
-	private int minX = -50;
-	private int maxZ = 50;
-	private int minZ = -50;
+	private int maxX = 75;
+	private int minX = -75;
+	private int maxZ = 75;
+	private int minZ = -75;
 	private Slimy main;
 	private static ArrayList<Player> players = new ArrayList<>();
 	
@@ -51,7 +55,7 @@ public class PlayerListeners implements Listener {
 		if(!players.contains(event.getPlayer()))
 			return;
 		
-		Bukkit.broadcastMessage("Debug: " + event.getPlayer().getName() + " was denied sprinting and is now disabled");
+		//Bukkit.broadcastMessage("Debug: " + event.getPlayer().getName() + " was denied sprinting and is now disabled");
 		
 		event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 100));
 		
@@ -66,8 +70,9 @@ public class PlayerListeners implements Listener {
 		float tempPitch = event.getPlayer().getLocation().getPitch();
 		int tempY;
 		try{
-			tempY = (int) (Math.ceil(GameModule.getGame().getMasses().get(event.getPlayer().getUniqueId().toString())/400))+yLevel;
+			tempY = (int) (Math.ceil(GameModule.getGame().getMasses().get(event.getPlayer().getName().toString())/100))+yLevel;
 		}catch(NullPointerException e){
+			//Bukkit.broadcastMessage("DEBUG: nullpointer hit");
 			tempY=yLevel;
 		}
 		if (((event.getPlayer().getLocation().getBlockY() <= (tempY-1))
@@ -88,6 +93,20 @@ public class PlayerListeners implements Listener {
 			event.getPlayer().teleport(new Location(event.getPlayer().getWorld(), tempX,
 					tempY, minZ+1, tempYaw, tempPitch));
 		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onInventoryOpenEvent(InventoryOpenEvent e){
+		e.setCancelled(true);
+	}
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onInventoryInteractEvent(InventoryInteractEvent e){
+		e.setCancelled(true);
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onInventoryClickEvent(InventoryClickEvent e){
+		e.setCancelled(true);
 	}
 	
 	public static void setY(int y){

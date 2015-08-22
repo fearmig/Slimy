@@ -200,7 +200,10 @@ public class ScoreBoardUtil {
 				name = name + ChatColor.WHITE;
 					
 				for(int i=name.length()-1; i<17; i++){
+					if(i<12)
+						i++;
 					name = name+"_";
+					
 				}
 				return name;
 			}

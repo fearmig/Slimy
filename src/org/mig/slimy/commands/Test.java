@@ -21,7 +21,7 @@ public class Test implements CommandExecutor{
 	public boolean onCommand(CommandSender sender, Command command, String label,
 			String[] args) {
 		GameModule gm = new GameModule(main);
-		if(args.length==1){
+		if(args.length==1 && sender.hasPermission("Slimy.admin")){
 			if(args[0].equals("create")){
 				ArenaModule am = new ArenaModule(main);
 				am.createArena(((Player)sender).getLocation());
@@ -37,7 +37,7 @@ public class Test implements CommandExecutor{
 				FoodUtil.placeInitalFood();
 			}
 		}
-		else{
+		else if(!PlayerListeners.getPlayers().contains(sender)){
 			gm.joinGame((Player)sender);
 			return true;
 		}

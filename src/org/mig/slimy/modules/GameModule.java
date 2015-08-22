@@ -43,8 +43,8 @@ public class GameModule {
 		CellUtil cu = new CellUtil();
 		int size=2;
 		int newSize = random.nextInt(15 - 5 + 1) + 5;
-		int x = random.nextInt(48 - (-48) + 1) - 48;
-		int z = random.nextInt(48 - (-48) + 1) - 48;
+		int x = random.nextInt(73 - (-73) + 1) - 73;
+		int z = random.nextInt(73 - (-73) + 1) - 73;
 		Location loc = ArenaModule.getArena().getSpawn();
 		Location spawnLoc = new Location(loc.getWorld(),x,loc.getY(),z,loc.getYaw(),loc.getPitch());
 		
@@ -65,7 +65,9 @@ public class GameModule {
 			String uuid = p.getUniqueId().toString();
 			public void run(){
 				if(p.isOnline() && game.getPlayers().get(uuid)!=null){
-					movePeice(uuid, p.getLocation().subtract(0, 10, 0));
+					Location temploc = p.getLocation();
+					temploc.setY(PlayerListeners.getY());
+					movePeice(uuid, temploc.subtract(0, 10, 0));
 					//if(p.getName().equalsIgnoreCase("FearMig"))
 						//System.out.println("move task");
 				}
@@ -81,7 +83,7 @@ public class GameModule {
 					this.cancel();
 				}
 			}
-		}.runTaskTimer(main, 0, 1);
+		}.runTaskTimer(main, 0, 3);
 		
 		new BukkitRunnable(){
 			World world = Bukkit.getWorld("slimy");
@@ -112,11 +114,11 @@ public class GameModule {
 				
 				int pMass = game.getMasses().get(p.getName());
 				double searchRad= pMass/250;
-				if(searchRad<.5)
-					searchRad=.5;
+				if(searchRad<.4)
+					searchRad=.4;
 				if((p.getNearbyEntities(searchRad, 100, searchRad)).size()>0){
 					boolean foundPlayerSlime = false;
-					for(Entity entityA : p.getNearbyEntities(searchRad, 100, searchRad)){
+					for(Entity entityA : p.getNearbyEntities(.2, 100, .2)){
 						if(entityA instanceof CraftSlime && ((CraftSlime)entityA).getSize()>1){
 							//find players slime
 							if(game.getPlayers().get(p.getUniqueId().toString())
@@ -127,8 +129,8 @@ public class GameModule {
 						if(foundPlayerSlime){
 							for(Entity entityB : p.getNearbyEntities(searchRad, 100, searchRad)){
 								if(entityB instanceof CraftSlime && ((CraftSlime)entityB).getSize()>1 
-										&& !entityB.equals(entityA)){
-									boolean result=false;
+											&& !entityB.equals(entityA)){
+										boolean result=false;
 									for(String s: game.getPlayers().keySet()){
 										if(game.getPlayers().get(s).equals(entityB.getUniqueId().toString())){
 											Player oPlayer = Bukkit.getPlayer(UUID.fromString(s));
@@ -159,6 +161,7 @@ public class GameModule {
 										if(((CraftSlime)entityB).getSize()<=((CraftSlime)entityA).getSize()){
 											int newSize = ((CraftSlime)entityB).getSize()*50+ pMass;
 											game.getMasses().put(p.getName(), newSize);
+											entityB.remove();
 											((CraftSlime)entityA).setSize((int) Math.ceil(newSize / 100.0)+1);
 										}
 									}
@@ -166,6 +169,12 @@ public class GameModule {
 								else if(entityB instanceof CraftMagmaCube && ((CraftMagmaCube)entityB).getSize()==1){
 									entityB.remove();
 									int newSize = game.getMasses().get(p.getName())-5;
+									if (newSize<5){
+										entityA.remove();
+										game.getPlayers().remove(uuid);
+										game.getMasses().remove(p.getName());
+										PlayerListeners.removePlayer(p);
+									}
 									game.getMasses().put(p.getName(), newSize);
 									p.setFlySpeed((float) ((-0.000030060120240480967*newSize) + 0.0851503006012024));
 									((CraftSlime)entityA).setSize((int) Math.ceil(newSize / 100.0)+1);
@@ -187,7 +196,7 @@ public class GameModule {
 					}
 				}
 			}
-		}.runTaskTimer(main, 0, 3);
+		}.runTaskTimer(main, 0, 5);
 		
 		new BukkitRunnable(){
 			public void run(){
@@ -205,7 +214,6 @@ public class GameModule {
 				e.teleport(loc);
 				return;
 			}
-			
 		}
 	}
 	

@@ -12,7 +12,7 @@ import net.minecraft.server.v1_8_R3.NBTTagCompound;
 
 public class CellUtil {
 
-	private static int greenSlime = 600;
+	private static int greenSlime = 1000;
 	private static int magmaSlime = 400;
 	
 	public UUID spawn(Location l, int size) {
@@ -20,7 +20,7 @@ public class CellUtil {
 		disableAI(c);
 		c.setSize(size);
 		CustomEntities.spawnEntity(c, l);
-        System.out.println("Placed slime!");
+        //System.out.println("Placed slime!");
         return c.getUniqueID();
     }
 	
@@ -29,7 +29,7 @@ public class CellUtil {
 		disableAI(c);
 		c.setSize(size);
 		CustomEntities.spawnEntity(c, l);
-        System.out.println("Placed Magma!");
+        //System.out.println("Placed Magma!");
         return c.getUniqueID();
     }
 	
