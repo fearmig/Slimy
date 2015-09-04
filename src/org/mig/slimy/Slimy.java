@@ -3,7 +3,7 @@ package org.mig.slimy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.mig.slimy.commands.Test;
+import org.mig.slimy.commands.SlimyCommands;
 import org.mig.slimy.listeners.ClickListener;
 import org.mig.slimy.listeners.PlayerListeners;
 import org.mig.slimy.listeners.WeatherListener;
@@ -31,7 +31,7 @@ public class Slimy extends JavaPlugin{
 			su.updateScoreboard();
 		}
 		
-		getCommand("slime").setExecutor(new Test(this));
+		getCommand("slime").setExecutor(new SlimyCommands(this));
 		
 		getServer().getPluginManager().registerEvents(new PlayerListeners(this),this);
 		getServer().getPluginManager().registerEvents(new WeatherListener(),this);

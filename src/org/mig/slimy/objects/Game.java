@@ -2,24 +2,25 @@ package org.mig.slimy.objects;
 
 import java.util.HashMap;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.scoreboard.Scoreboard;
 
 public class Game {
 	
-	private HashMap<String, String> players;
+	private HashMap<String, LivingEntity> players;
 	private HashMap<String, Integer> masses;
 	private HashMap<String, Scoreboard> scoreboard;
 	
 	/**
 	 * @return the players
 	 */
-	public HashMap<String, String> getPlayers() {
+	public HashMap<String, LivingEntity> getPlayers() {
 		return players;
 	}
 	/**
 	 * @param players the players to set
 	 */
-	public void setPlayers(HashMap<String, String> players) {
+	public void setPlayers(HashMap<String, LivingEntity> players) {
 		this.players = players;
 	}
 	

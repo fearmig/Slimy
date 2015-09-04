@@ -2,6 +2,8 @@ package org.mig.slimy.listeners;
 
 import java.util.ArrayList;
 
+import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -9,11 +11,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
@@ -23,6 +24,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.mig.slimy.Slimy;
 import org.mig.slimy.modules.ArenaModule;
 import org.mig.slimy.modules.GameModule;
+import org.mig.slimy.utils.TitleMessageUtility;
 
 public class PlayerListeners implements Listener {
 	private static int yLevel;
@@ -38,15 +40,42 @@ public class PlayerListeners implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onItemMergeEvent(ItemMergeEvent event) {
+	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event){
+		event.setCancelled(true);
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onEntityDamageByBlockEvent(EntityDamageByBlockEvent event){
 		event.setCancelled(true);
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerJoin(final PlayerJoinEvent event) {
+		//send the title to the player
+		TitleMessageUtility.sendTitle(event.getPlayer());
+		
 		event.getPlayer().setGameMode(GameMode.SPECTATOR);
 		event.getPlayer().setFlySpeed((float) .05);
 		event.getPlayer().teleport(ArenaModule.getArena().getSpawn());
+		event.getPlayer().sendMessage(ChatColor.AQUA+"Do "+ ChatColor.GREEN + "/slime " + ChatColor.AQUA + "to start!");
+		
+		/*
+		 * Fix for entities disappearing until i find a real fix
+		 */
+		if(players.size()==0){
+			new BukkitRunnable(){
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					GameModule gm = new GameModule(main);
+					ArenaModule am = new ArenaModule(main);
+					am.refresh();
+					gm.refresh();
+				}
+			}.runTaskLater(main, 60);
+			
+		}
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -55,53 +84,60 @@ public class PlayerListeners implements Listener {
 		if(!players.contains(event.getPlayer()))
 			return;
 		
-		//Bukkit.broadcastMessage("Debug: " + event.getPlayer().getName() + " was denied sprinting and is now disabled");
+		String uuid = event.getPlayer().getUniqueId().toString();
 		
-		event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 100));
+		try{
+			GameModule.getGame().getPlayers().get(uuid).remove();
+		} catch(NullPointerException e){
+			
+		}
+		GameModule.getGame().getPlayers().remove(uuid);
+		GameModule.getGame().getMasses().remove(event.getPlayer().getName());
+		PlayerListeners.removePlayer(event.getPlayer());
+		Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + event.getPlayer().getName()
+				+ ChatColor.GREEN + " shouldn't have sprinted!");
+		event.getPlayer().setSprinting(false);
+		//event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 100));
 		
 	}
 
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
-		
+		event.getPlayer().setSprinting(false);
 		int tempX = event.getPlayer().getLocation().getBlockX();
 		int tempZ = event.getPlayer().getLocation().getBlockZ();
+		int tempy2 = event.getPlayer().getLocation().getBlockY();
 		float tempYaw = event.getPlayer().getLocation().getYaw();
 		float tempPitch = event.getPlayer().getLocation().getPitch();
 		int tempY;
 		try{
-			tempY = (int) (Math.ceil(GameModule.getGame().getMasses().get(event.getPlayer().getName().toString())/100))+yLevel;
+			int size = GameModule.getGame().getMasses().get(event.getPlayer().getName());
+			if(size<0)
+				size = size*-1;
+			
+			tempY = (int) (Math.ceil(size/100))+yLevel;
 		}catch(NullPointerException e){
 			//Bukkit.broadcastMessage("DEBUG: nullpointer hit");
 			tempY=yLevel;
 		}
-		if (((event.getPlayer().getLocation().getBlockY() <= (tempY-1))
+		if (((event.getPlayer().getLocation().getBlockY() < 1)
 				|| event.getPlayer().getLocation().getBlockY() >= (tempY+1))
 				&& players.contains(event.getPlayer())) {	
 			event.getPlayer().teleport(new Location(event.getPlayer().getWorld(), tempX,
 					tempY, tempZ, tempYaw, tempPitch));
 		} else if (tempX >= maxX){
 			event.getPlayer().teleport(new Location(event.getPlayer().getWorld(), maxX-1,
-					tempY, tempZ, tempYaw, tempPitch));
+					tempy2, tempZ, tempYaw, tempPitch));
 		} else if (tempX <= minX){
 			event.getPlayer().teleport(new Location(event.getPlayer().getWorld(), minX+1,
-					tempY, tempZ, tempYaw, tempPitch));
+					tempy2, tempZ, tempYaw, tempPitch));
 		} else if (tempZ >= maxZ){
 			event.getPlayer().teleport(new Location(event.getPlayer().getWorld(), tempX,
-					tempY, maxZ-1, tempYaw, tempPitch));
+					tempy2, maxZ-1, tempYaw, tempPitch));
 		} else if (tempZ <= minZ){
 			event.getPlayer().teleport(new Location(event.getPlayer().getWorld(), tempX,
-					tempY, minZ+1, tempYaw, tempPitch));
+					tempy2, minZ+1, tempYaw, tempPitch));
 		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onInventoryOpenEvent(InventoryOpenEvent e){
-		e.setCancelled(true);
-	}
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onInventoryInteractEvent(InventoryInteractEvent e){
-		e.setCancelled(true);
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)

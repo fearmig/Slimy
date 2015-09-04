@@ -134,30 +134,41 @@ public class ScoreBoardUtil {
 					//System.out.println(sizes.size()+"");
 					//System.out.println(names.size()+"");
 					int sMass = masses.get(s);
+					
+					if (sMass < 0)
+						sMass = sMass * -1;
+					
 					if(sizes.size()==0){
-						sizes.add(sMass);
+						sizes.add(masses.get(s));
 						names.add(s);
 					} else if (sizes.size()==1){
-						if(sMass > sizes.get(0)){
-							sizes.add(0, sMass);
+						int tMass = sizes.get(0);
+						if (tMass<0)
+							tMass = tMass * -1;
+						if(sMass > tMass){
+							sizes.add(0, masses.get(s));
 							names.add(0, s);
 						} else {
-							sizes.add(sMass);
+							sizes.add(masses.get(s));
 							names.add(s);
 						}
 					} else {
 						for (int i = 0; i < 10; i++) {
 							if (i < sizes.size()) {
-								if (sMass > sizes.get(i)) {
+								int tMass = sizes.get(i);
+								if (tMass<0)
+									tMass = tMass * -1;
+								
+								if (sMass > tMass) {
 									// System.out.println("Putting "+ s +
 									// " in front of " + names.get(i));
-									sizes.add(i, sMass);
+									sizes.add(i, masses.get(s));
 									names.add(i, s);
 									break;
 								}
 							} else if (count >= sizes.size()
 									&& count >= names.size()) {
-								sizes.add(sMass);
+								sizes.add(masses.get(s));
 								names.add(s);
 								break;
 							}
@@ -169,58 +180,68 @@ public class ScoreBoardUtil {
 				for(int y = 0; y < 10; y++){
 					if(y!=9){
 						if(names.size()>y && sizes.size()>y){
-							if (names.get(y).length()>12)
-								top10List[y]="0"+(y+1)+" "+ formatN(ChatColor.AQUA+names.get(y).substring(0,11)) 
+							if (names.get(y).length()>11)
+								top10List[y]="0"+(y+1)+ formatN(ChatColor.AQUA+names.get(y).substring(0,10),sizes.get(y)) 
 										+ formatS(sizes.get(y));
 							else
-								top10List[y]="0"+(y+1)+" "+ formatN(ChatColor.AQUA+names.get(y))
+								top10List[y]="0"+(y+1)+ formatN(ChatColor.AQUA+names.get(y),sizes.get(y))
 										+ formatS(sizes.get(y));	
 						}
 						else{
-							top10List[y]="0"+(y+1)+" "+ formatN(ChatColor.AQUA+"empty_slot") + formatS(0);
+							top10List[y]="0"+(y+1)+ formatN(ChatColor.AQUA+"empty_slot",1) + formatS(0);
 						}
 					}
 					else{
 						if(names.size()>y && sizes.size()>y){
 							if (names.get(y).length()>11)
-								top10List[y]="10 "+ formatN(ChatColor.AQUA+names.get(y).substring(0,11)) 
+								top10List[y]="10"+ formatN(ChatColor.AQUA+names.get(y).substring(0,10),sizes.get(y)) 
 										+ formatS(sizes.get(y));
 							else
-								top10List[y]="10 "+ formatN(ChatColor.AQUA+names.get(y)) 
+								top10List[y]="10"+ formatN(ChatColor.AQUA+names.get(y),sizes.get(y)) 
 										+ formatS(sizes.get(y));
 						}
 						else{
-							top10List[y]="10 "+ formatN(ChatColor.AQUA+"empty_slot") + formatS(0);
+							top10List[y]="10"+ formatN(ChatColor.AQUA+"empty_slot",1) + formatS(0);
 						}
 					}
 				}
 
 			}
-			private String formatN(String name) {
+			private String formatN(String name, int size) {
 				name = name + ChatColor.WHITE;
-					
-				for(int i=name.length()-1; i<17; i++){
+				boolean tempbool = false;
+				if (size<0)
+					tempbool = true;
+				
+				for(int i=name.length()-1; i<16; i++){
 					if(i<12)
 						i++;
-					name = name+"_";
+					if(i==15 && tempbool)
+						name = name+ChatColor.AQUA+"-";
+					else if(i==15)
+						name = name+"_" +ChatColor.AQUA;
+					else
+						name = name+"_";
+					
 					
 				}
 				return name;
 			}
 			
 			private String formatS(int size) {
+				if(size<0)
+					size = size * -1;
+				
 				if(size<10)
-					return ChatColor.AQUA + "0000" + size;
+					return "000" + size;
 				else if(size < 100)
-					return ChatColor.AQUA + "000" + size;
+					return "00" + size;
 				else if(size < 1000)
-					return ChatColor.AQUA + "00" + size;
+					return "0" + size;
 				else if(size < 10000)
-					return ChatColor.AQUA + "0" + size;
-				else if(size < 100000)
-					return ChatColor.AQUA + "" + size;
+					return "" + size;
 				else
-					return ChatColor.AQUA + "MAXED";
+					return "MAXED";
 			}
 			
 		}.runTaskTimerAsynchronously(main, 0, 20);

@@ -15,22 +15,22 @@ public class CellUtil {
 	private static int greenSlime = 1000;
 	private static int magmaSlime = 400;
 	
-	public UUID spawn(Location l, int size) {
+	public Cell spawn(Location l, int size) {
 		Cell c = new Cell(l.getWorld());
 		disableAI(c);
 		c.setSize(size);
 		CustomEntities.spawnEntity(c, l);
         //System.out.println("Placed slime!");
-        return c.getUniqueID();
+        return c;
     }
 	
-	public UUID spawnMagma(Location l, int size) {
+	public MagmaCell spawnMagma(Location l, int size) {
 		MagmaCell c = new MagmaCell(l.getWorld());
 		disableAI(c);
 		c.setSize(size);
 		CustomEntities.spawnEntity(c, l);
         //System.out.println("Placed Magma!");
-        return c.getUniqueID();
+        return c;
     }
 	
 	public void disableAI(Entity entity) {
@@ -39,7 +39,7 @@ public class CellUtil {
 	    if(tag == null) {
 	        tag = new NBTTagCompound();
 	    }
-	     
+	    
 	    nmsEnt.c(tag);
 	    tag.setInt("NoAI", 1);
 	    nmsEnt.f(tag);

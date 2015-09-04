@@ -9,5 +9,6 @@ depend: [FeatherBoard]
 softdepend: [Multiverse-core]
 
 commands:
-  slime:
+  slimy:
     description: test
+    aliases: [slime, s]
